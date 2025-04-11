@@ -1,11 +1,13 @@
 return {
   { -- Autocompletion
-    'hrsh7th/nvim-cmp',
-    event = 'InsertEnter',
+    'saghen/blink.cmp',
+    event = 'VimEnter',
+    version = '1.*',
     dependencies = {
       -- Snippet Engine & its associated nvim-cmp source
       {
         'L3MON4D3/LuaSnip',
+        version = '2.*',
         build = (function()
           -- Build Step is needed for regex support in snippets.
           -- This step is not supported in many windows environments.
@@ -27,7 +29,7 @@ return {
           -- },
         },
       },
-      'saadparwaiz1/cmp_luasnip',
+      'folke/lazydev.nvim',
 
       -- Adds other completion capabilities.
       --  nvim-cmp does not ship with all sources by default. They are split
