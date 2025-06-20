@@ -6,29 +6,35 @@ return {
     provider = 'gemini',
     auto_suggestions_provider = 'gemini',
     cursor_applying_provider = 'gemini',
-    openai = {
-      endpoint = 'https://api.openai.com/v1',
-      model = 'gpt-4o',
-      timeout = 30000,
-      temperature = 0,
-      max_tokens = 8192,
-      -- reasoning_effort = "medium", -- low|medium|high, only used for reasoning models
-    },
-    claude = {
-      endpoint = 'https://api.anthropic.com/v1/',
-      model = 'claude-3-7-sonnet-latest',
-      timeout = 30000,
-      temperature = 0,
-      max_tokens = 8192,
-    },
-    gemini = {
-      -- endpoint = 'https://generativelanguage.googleapis.com/v1beta/',
-      model = 'gemini-2.5-pro-exp-03-25',
-      timeout = 30000,
-      temperature = 0,
-      max_tokens = 8192,
-    },
-    vendors = {
+    providers = {
+      openai = {
+        endpoint = 'https://api.openai.com/v1',
+        model = 'gpt-4o',
+        timeout = 30000,
+        extra_request_body = {
+          temperature = 0,
+          max_tokens = 8192,
+          -- reasoning_effort = "medium", -- low|medium|high, only used for reasoning models
+        },
+      },
+      claude = {
+        endpoint = 'https://api.anthropic.com/v1/',
+        model = 'claude-3-7-sonnet-latest',
+        timeout = 30000,
+        extra_request_body = {
+          temperature = 0,
+          max_tokens = 8192,
+        },
+      },
+      gemini = {
+        -- endpoint = 'https://generativelanguage.googleapis.com/v1beta/',
+        model = 'gemini-2.5-pro-exp-03-25',
+        timeout = 30000,
+        extra_request_body = {
+          temperature = 0,
+          max_tokens = 8192,
+        },
+      },
       openrouter = {
         __inherited_from = 'openai',
         endpoint = 'https://openrouter.ai/api/v1',
