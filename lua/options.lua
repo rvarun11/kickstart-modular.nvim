@@ -3,6 +3,12 @@
 -- NOTE: You can change these options as you wish!
 --  For more options, you can see `:help option-list`
 
+-- Indentation settings
+vim.opt.expandtab = true
+vim.opt.tabstop = 4
+vim.opt.shiftwidth = 4
+vim.opt.softtabstop = 4
+
 -- Make line numbers default
 vim.o.relativenumber = true
 -- You can also add relative line numbers, to help with jumping.
@@ -70,5 +76,16 @@ vim.o.scrolloff = 10
 -- instead raise a dialog asking if you wish to save the current file(s)
 -- See `:help 'confirm'`
 vim.o.confirm = true
+
+-- NOTE: (varun): Adding this to prevent duplicate errors from showing up.
+-- This won't be needed if the linters are configured properly. Currently happening with python setup only,
+-- haven't tested with others.
+vim.diagnostic.config {
+  -- This will deduplicate diagnostics with the same message
+  duplicates = {
+    severity = vim.diagnostic.severity.ERROR,
+    max_displayed = 1, -- Only show one instance of duplicate diagnostics
+  },
+}
 
 -- vim: ts=2 sts=2 sw=2 et
