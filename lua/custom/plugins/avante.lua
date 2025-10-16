@@ -1,5 +1,8 @@
 return {
   'yetone/avante.nvim',
+  -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
+  -- ⚠️ must add this setting! ! !
+  build = vim.fn.has 'win32' ~= 0 and 'powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false' or 'make',
   event = 'VeryLazy',
   version = false, -- Never set this value to "*"! Never!
   ---@module 'avante'
@@ -22,6 +25,9 @@ return {
           max_completion_tokens = 16384,
         },
       },
+    },
+    behaviour = {
+      auto_approve_tool_permissions = false,
     },
   },
   dependencies = {
