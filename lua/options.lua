@@ -88,4 +88,10 @@ vim.diagnostic.config {
   },
 }
 
+-- Automatically reload files changed outside of Neovim
+vim.o.autoread = true
+vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold', 'CursorHoldI' }, {
+  command = 'checktime',
+})
+
 -- vim: ts=2 sts=2 sw=2 et
