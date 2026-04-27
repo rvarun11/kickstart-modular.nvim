@@ -14,5 +14,6 @@ return {
         -- Add other integrations here
       },
     }
+    vim.cmd.colorscheme 'catppuccin'
   end,
 }
