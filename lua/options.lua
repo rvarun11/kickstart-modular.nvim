@@ -92,4 +92,19 @@ vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold', 'CursorHo
   command = 'checktime',
 })
 
+-- Live poll: checktime every 1s so idle panes still reload
+local reload_timer = (vim.uv or vim.loop).new_timer()
+reload_timer:start(
+  1000,
+  1000,
+  vim.schedule_wrap(function()
+    if vim.fn.getcmdwintype() ~= '' then
+      return -- skip while in cmdline window
+    end
+    vim.cmd 'silent! checktime' -- reload files changed on disk
+    pcall(vim.fn['fugitive#DidChange']) -- refresh open fugitive status buffers (no-op if none)
+    vim.cmd 'redraw'
+  end)
+)
+
 -- vim: ts=2 sts=2 sw=2 et
