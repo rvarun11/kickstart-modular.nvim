@@ -200,7 +200,12 @@ return {
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
+        ts_ls = {},
+        eslint = {},
+        tailwindcss = {},
+        emmet_language_server = {
+          filetypes = { 'html', 'css', 'scss', 'javascriptreact', 'typescriptreact' },
+        },
 
         stylua = {}, -- Used to format Lua code
 
@@ -248,7 +253,7 @@ return {
       -- You can press `g?` for help in this menu.
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
-        -- You can add other tools here that you want Mason to install
+        'prettierd', -- JS/TS/JSX/TSX/CSS/HTML/JSON formatter
       })
 
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
@@ -256,6 +261,17 @@ return {
       for name, server in pairs(servers) do
         vim.lsp.config(name, server)
         vim.lsp.enable(name)
+      end
+
+      -- Haskell LSP via system PATH (e.g. nix shell). Not managed by mason.
+      -- Provides goto-definition and find-references for .hs files.
+      if vim.fn.executable('haskell-language-server-wrapper') == 1 or vim.fn.executable('haskell-language-server') == 1 then
+        vim.lsp.config('hls', {
+          cmd = { 'haskell-language-server-wrapper', '--lsp' },
+          filetypes = { 'haskell', 'lhaskell' },
+          root_markers = { 'hie.yaml', 'cabal.project', 'stack.yaml', '*.cabal', 'flake.nix' },
+        })
+        vim.lsp.enable('hls')
       end
     end,
   },
