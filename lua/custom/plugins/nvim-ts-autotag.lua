@@ -1,9 +1,5 @@
----@module 'lazy'
----@type LazySpec
-return {
-  'windwp/nvim-ts-autotag',
-  event = { 'BufReadPre', 'BufNewFile' },
-  ft = { 'html', 'javascript', 'javascriptreact', 'typescript', 'typescriptreact', 'svelte', 'vue', 'tsx', 'jsx', 'xml' },
-  opts = {},
-}
--- vim: ts=2 sts=2 sw=2 et
+local function gh(repo) return 'https://github.com/' .. repo end
+
+-- Auto close/rename HTML/JSX tags. Depends on treesitter (loaded before custom plugins).
+vim.pack.add { gh 'windwp/nvim-ts-autotag' }
+require('nvim-ts-autotag').setup {}

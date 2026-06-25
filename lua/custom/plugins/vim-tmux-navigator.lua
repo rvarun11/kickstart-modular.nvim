@@ -1,17 +1,6 @@
-return {
-  "christoomey/vim-tmux-navigator",
-  cmd = {
-    "TmuxNavigateLeft",
-    "TmuxNavigateDown",
-    "TmuxNavigateUp",
-    "TmuxNavigateRight",
-    "TmuxNavigatePrevious",
-  },
-  keys = {
-    { "<c-h>", "<cmd><C-U>TmuxNavigateLeft<cr>" },
-    { "<c-j>", "<cmd><C-U>TmuxNavigateDown<cr>" },
-    { "<c-k>", "<cmd><C-U>TmuxNavigateUp<cr>" },
-    { "<c-l>", "<cmd><C-U>TmuxNavigateRight<cr>" },
-    { "<c-\\>", "<cmd><C-U>TmuxNavigatePrevious<cr>" },
-  },
-}
+local function gh(repo) return 'https://github.com/' .. repo end
+
+-- Seamless navigation between tmux panes and vim splits with <C-h/j/k/l>.
+-- The plugin installs its default <C-hjkl> mappings on load, overriding the
+-- plain window-navigation maps from keymaps.lua.
+vim.pack.add { gh 'christoomey/vim-tmux-navigator' }
