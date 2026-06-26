@@ -98,24 +98,34 @@ vim.diagnostic.config {
   },
 }
 
--- Automatically reload files changed outside of Neovim
+-- Auto-reload files changed on disk
 vim.o.autoread = true
+
+local reload_group = vim.api.nvim_create_augroup('auto-reload', { clear = true })
+
+-- Focused window: reload + refresh fugitive on focus/enter/idle. Event-driven so
+-- fugitive#DidChange never fires mid-interaction and steals focus from floats (Telescope).
 vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold', 'CursorHoldI' }, {
-  command = 'checktime',
+  group = reload_group,
+  callback = function()
+    if vim.fn.getcmdwintype() ~= '' then return end -- skip in cmdline window
+    vim.cmd 'silent! checktime'
+  end,
+})
+vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter' }, {
+  group = reload_group,
+  callback = function() pcall(vim.fn['fugitive#DidChange']) end,
 })
 
--- Live poll: checktime every 1s so idle panes still reload
-local reload_timer = (vim.uv or vim.loop).new_timer()
+-- Poll for unfocused split panes (autocmds don't fire for them). checktime only:
+-- reloads in place, never switches the active window → safe to run blindly, no guards.
+local reload_timer = assert((vim.uv or vim.loop).new_timer())
 reload_timer:start(
   1000,
   1000,
   vim.schedule_wrap(function()
-    if vim.fn.getcmdwintype() ~= '' then
-      return -- skip while in cmdline window
-    end
-    vim.cmd 'silent! checktime' -- reload files changed on disk
-    pcall(vim.fn['fugitive#DidChange']) -- refresh open fugitive status buffers (no-op if none)
-    vim.cmd 'redraw'
+    if vim.fn.getcmdwintype() ~= '' then return end
+    vim.cmd 'silent! checktime'
   end)
 )
 
