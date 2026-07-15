@@ -103,29 +103,44 @@ vim.o.autoread = true
 
 local reload_group = vim.api.nvim_create_augroup('auto-reload', { clear = true })
 
--- Focused window: reload + refresh fugitive on focus/enter/idle. Event-driven so
--- fugitive#DidChange never fires mid-interaction and steals focus from floats (Telescope).
+-- Guard against focus steal: the real hazard is running reload work while a
+-- floating window (Telescope's prompt is a float, buftype 'prompt') or the
+-- cmdline window is focused — that knocks the prompt out of insert mode. A normal
+-- file buffer OR fugitive's status buffer (buftype 'nowrite') is safe to run
+-- under, so exclude only floats, the cmdline window, and prompt buffers. Excluding
+-- 'nowrite' here is what previously stopped ':0G' from refreshing in a bg pane.
+local function safe_to_refresh()
+  return vim.fn.getcmdwintype() == '' -- not in the cmdline window
+    and vim.api.nvim_win_get_config(0).relative == '' -- not a floating window (Telescope, etc.)
+    and vim.bo.buftype ~= 'prompt' -- not a prompt buffer (would lose insert mode)
+end
+
+-- Interactive path: reload changed files + refresh fugitive on focus/enter/idle.
 vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold', 'CursorHoldI' }, {
   group = reload_group,
   callback = function()
-    if vim.fn.getcmdwintype() ~= '' then return end -- skip in cmdline window
-    vim.cmd 'silent! checktime'
+    if safe_to_refresh() then vim.cmd 'silent! checktime' end
   end,
 })
 vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter' }, {
   group = reload_group,
-  callback = function() pcall(vim.fn['fugitive#DidChange']) end,
+  callback = function()
+    if safe_to_refresh() then pcall(vim.fn['fugitive#DidChange']) end
+  end,
 })
 
--- Poll for unfocused split panes (autocmds don't fire for them). checktime only:
--- reloads in place, never switches the active window → safe to run blindly, no guards.
+-- Background poll for UNFOCUSED split panes (focus/buffer autocmds never fire for
+-- them). This is what lets an unfocused nvim pane track edits a tool makes in
+-- another tmux pane: checktime reloads changed file buffers, and fugitive#DidChange
+-- re-renders any open ':0G' status buffer so its tree stays live (no-op if none).
 local reload_timer = assert((vim.uv or vim.loop).new_timer())
 reload_timer:start(
   1000,
   1000,
   vim.schedule_wrap(function()
-    if vim.fn.getcmdwintype() ~= '' then return end
+    if not safe_to_refresh() then return end
     vim.cmd 'silent! checktime'
+    pcall(vim.fn['fugitive#DidChange'])
   end)
 )
 
